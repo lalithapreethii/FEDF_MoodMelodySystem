@@ -1,0 +1,11 @@
+.card h3 {
+  color: #F9DCC4;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+.card button {
+  margin: 8px;
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+}

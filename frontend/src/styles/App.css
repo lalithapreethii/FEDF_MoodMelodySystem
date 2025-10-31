@@ -1,0 +1,49 @@
+body, #root {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #F8EDEB 0%, #FCD5CE 55%, #F9DCC4 100%);
+  color: #3D405B;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+.card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.85), #F9DCC4 100%);
+  border-radius: 18px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(69,123,157,0.16), 0 2px 8px rgba(168,218,220,0.06);
+  backdrop-filter: blur(8px);
+}
+button {
+  background: linear-gradient(135deg, #A8DADC 0%, #457B9D 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  padding: 0.7rem 1.6rem;
+  margin: 0.3rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s all;
+  box-shadow: 0 4px 12px rgba(69,123,157,0.13);
+}
+button:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 8px 16px rgba(69,123,157,0.22);
+}
+input, textarea {
+  border-radius: 10px;
+  border: 1px solid #F9DCC4;
+  padding: 0.6rem;
+  background: #FFF;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+h1, h2, h3 {
+  margin-top: 0;
+}

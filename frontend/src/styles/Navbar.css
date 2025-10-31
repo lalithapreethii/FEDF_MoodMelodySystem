@@ -1,0 +1,16 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(90deg, #FCD5CE, #A8DADC 70%);
+  box-shadow: 0 2px 12px rgba(69,123,157,0.04);
+}
+.navbar img {
+  height: 38px;
+  margin-right: 1rem;
+}
+.navbar h1 {
+  color: #457B9D;
+  font-size: 2rem;
+  letter-spacing: 2px;
+}

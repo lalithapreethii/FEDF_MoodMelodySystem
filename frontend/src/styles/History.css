@@ -1,0 +1,11 @@
+.card ul {
+  list-style: none;
+  padding: 0;
+}
+.card li {
+  background: #FCD5CE44;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}

@@ -1,0 +1,13 @@
+.card textarea {
+  width: 100%;
+  min-height: 80px;
+  font-size: 1rem;
+  border: 1px solid #A8DADC;
+  border-radius: 14px;
+  background: #FFF7F0;
+}
+.card button {
+  float: right;
+  background: #FFA8A8;
+  color: #fff;
+}
