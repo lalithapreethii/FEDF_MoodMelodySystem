@@ -4,9 +4,11 @@
   "description": "Mood-based song recommender backend API",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
-  },
+  "start": "node app.js",
+  "dev": "nodemon app.js",
+  "build": "npm rebuild bcrypt --build-from-source"
+},
+
   "keywords": [
     "mood",
     "music",
