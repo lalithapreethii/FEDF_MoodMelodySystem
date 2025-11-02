@@ -75,8 +75,8 @@ const MusicPlaylist = ({ mood }) => {
               <strong>Debug Info:</strong>
               <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
                 <li>Mood: <code>{mood}</code></li>
-                <li>Backend: <code>http://localhost:5000</code></li>
-                <li>Test directly: <a href={`http://localhost:5000/api/spotify/playlist/${mood}`} target="_blank" rel="noopener noreferrer">Click here</a></li>
+                <li>Backend: <code>https://mood-song-backend-s1tm.onrender.com</code></li>
+                <li>Test directly: <a href={`https://mood-song-backend-s1tm.onrender.com/api/spotify/playlist/${mood}`} target="_blank" rel="noopener noreferrer">Click here</a></li>
               </ul>
             </div>
             <button className="retake-btn" onClick={() => window.location.reload()}>

@@ -47,7 +47,7 @@ const Signup = () => {
       const body = JSON.stringify({ name, email, password });
 
       const res = await axios.post(
-        'http://localhost:5000/api/auth/signup',
+        'https://mood-song-backend-s1tm.onrender.com/api/auth/signup',
         body,
         config
       );
