@@ -1,79 +1,54 @@
-import React, { useState } from 'react';
-import './styles/App.css';
-import MoodQuiz from './components/MoodQuiz';
-import Journal from './components/Journal';
-import { getMoodRecommendation, saveJournal } from './services/apiService';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import Dashboard from './components/Dashboard';
+import Playlist from './components/MusicPlaylist';
+import MoodQuiz from './components/MoodQuiz';
+import MusicPlayer from './components/MusicPlayer';  // ✅ NEW IMPORT
+import Journal from './components/Journal';
+import Profile from './components/Profile';
+import './styles/App.css';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [showSignup, setShowSignup] = useState(false);
-  const [moodResult, setMoodResult] = useState(null);
-  const [song, setSong] = useState('');
-  const [journalEntries, setJournalEntries] = useState([]);
+  const isAuthenticated = () => {
+    const token = localStorage.getItem('token');
+    return token !== null && token !== undefined && token !== '';
+  };
 
-  // Handles the mood quiz submit for recommendation
-  async function handleMoodSubmit(moodData) {
-    // moodData contains: { detectedMood, answers, scores }
-    setMoodResult(moodData.detectedMood);
-    const recommendedSong = await getRecommendedSong(moodData.detectedMood);
-    setSong(recommendedSong);
-  }
+  const ProtectedRoute = ({ children }) => {
+    if (!isAuthenticated()) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
 
-  // Handles saving the journal entry
-  function handleJournalSave(entry) {
-    saveJournal(entry);
-    setJournalEntries([...journalEntries, entry]);
-  }
+  const PublicRoute = ({ children }) => {
+    if (isAuthenticated()) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    return children;
+  };
 
-  // Handle Login
-  function handleLogin(userData) {
-    setUser(userData);
-  }
-
-  // Handle Signup
-  function handleSignup(userData) {
-    setUser(userData);
-    setShowSignup(false);
-  }
-
-  // Show Signup page if user clicks signup
-  if (!user && showSignup) {
-    return <Signup onSignup={handleSignup} goToLogin={() => setShowSignup(false)} />;
-  }
-
-  // Show Login page if NOT logged in
-  if (!user) {
-    return <Login onLogin={handleLogin} goToSignup={() => setShowSignup(true)} />;
-  }
-
-  // Main app after login
   return (
-    <div className="app-container">
-      <h1>Mood-Based Song Recommender</h1>
-      <p>Welcome, {user.email}!</p>
-      
-      {!song && <MoodQuiz submitMood={handleMoodSubmit} />}
-      
-      {song && (
-        <div>
-          <h3>Recommended Song: {song}</h3>
-          <Journal mood={moodResult} song={song} onSave={handleJournalSave} />
-        </div>
-      )}
-      
-      <div>
-        <h3>Your Journal Entries:</h3>
-        <ul>
-          {journalEntries.map((entry, index) => (
-            <li key={index}>
-              <strong>{entry.date}: </strong>{entry.text}
-            </li>
-          ))}
-        </ul>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/playlist" element={<ProtectedRoute><Playlist /></ProtectedRoute>} />
+          <Route path="/mood-quiz" element={<ProtectedRoute><MoodQuiz /></ProtectedRoute>} />
+          <Route path="/music-player" element={<ProtectedRoute><MusicPlayer /></ProtectedRoute>} />  {/* ✅ NEW ROUTE */}
+          <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
+          <Route path="*" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 

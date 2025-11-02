@@ -1,84 +1,146 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Signup
+// @route   POST /api/auth/signup
 router.post('/signup', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Validation
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Please provide all required fields' 
+      });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
-
-    // Check if user already exists
+    // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists with this email' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'User already exists with this email' 
+      });
     }
 
-    // Create new user
-    const user = new User({ email, password });
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword
+    });
+
     await user.save();
 
-    res.status(201).json({ 
-      message: 'User created successfully',
-      userId: user._id
+    // Create JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
     });
   } catch (error) {
-    console.error('Signup error:', error);
-    res.status(500).json({ error: 'Error creating user', details: error.message });
+    console.error('Signup Error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error during signup' 
+    });
   }
 });
 
-// Login
+// @route   POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validation
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Please provide email and password' 
+      });
     }
 
-    // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid credentials' 
+      });
     }
 
-    // Check password
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid credentials' 
+      });
     }
 
-    // Update last login
-    user.lastLogin = Date.now();
-    await user.save();
-
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '7d' }
     );
 
     res.json({
+      success: true,
       message: 'Login successful',
       token,
-      userId: user._id,
-      email: user.email
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Error logging in', details: error.message });
+    console.error('Login Error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error during login' 
+    });
+  }
+});
+
+// @route   POST /api/auth/forgot-password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'No user found with this email' 
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Password reset instructions sent to your email'
+    });
+  } catch (error) {
+    console.error('Forgot Password Error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error' 
+    });
   }
 });
 

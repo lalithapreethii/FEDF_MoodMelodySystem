@@ -1,54 +1,112 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import '../styles/Auth.css';
 
-function Login({ onLogin, goToSignup }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Login = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  function handleSubmit(e) {
+  const { email, password } = formData;
+
+  const onChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    onLogin({ email, password });
-  }
+    
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const config = { headers: { 'Content-Type': 'application/json' } };
+      const body = JSON.stringify({ email, password });
+      const res = await axios.post('http://localhost:5000/api/auth/login', body, config);
+      
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Login Error:', err);
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="auth-background">
+    <div className="auth-container">
+      <div className="auth-background">
+        <div className="floating-note">🎵</div>
+        <div className="floating-note">🎶</div>
+        <div className="floating-note">🎵</div>
+      </div>
+
       <div className="auth-card">
-        <h2 className="auth-title">Login</h2>
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={e=>setEmail(e.target.value)} 
-            required 
-            placeholder="your@email.com"
-          />
-          <label>Password</label>
-          <div className="password-row">
+        <div className="star-decoration">✨ ✨ ✨ ✨ ✨</div>
+        <h2 className="auth-title">Welcome Back</h2>
+        <p className="auth-subtitle">Feel the music, express yourself.</p>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <form onSubmit={onSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
             <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={e=>setPassword(e.target.value)}
-              required
-              placeholder="Enter password"
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={onChange}
+              placeholder="Enter your email"
+              disabled={loading}
             />
-            <span
-              className="toggle"
-              onClick={() => setShowPassword(s => !s)}
-              title={showPassword ? "Hide" : "Show"}
-            >{showPassword ? "🙈" : "👁️"}</span>
           </div>
-          <button className="dreamy-btn" type="submit">Login</button>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={password}
+                onChange={onChange}
+                placeholder="Enter your password"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? 'LOGGING IN...' : 'LOGIN'}
+          </button>
         </form>
-        
-        <div className="auth-action">
-          Don't have an account?
-          <button className="auth-link" onClick={goToSignup}>Sign Up</button>
-        </div>
+
+        <p className="auth-link">
+          Don't have an account? <Link to="/signup">Sign Up</Link>
+        </p>
       </div>
     </div>
   );
-}
+};
 
 export default Login;
